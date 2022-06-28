@@ -20,7 +20,7 @@ type scraperTestSuite struct {
 }
 
 func (s *scraperTestSuite) SetupTest() {
-	s.parallel = 30
+	s.parallel = 10
 	s.maxDepth = 10
 	s.outputFile = "testData/sitemap.xml"
 	s.scraper = scraper.NewScraper(s.parallel, s.maxDepth, s.outputFile)
@@ -36,7 +36,7 @@ func TestScraperTestSuite(t *testing.T) {
 func (s *scraperTestSuite) TestScrape_ThenSuccess() {
 	// Arrange
 	ctx := context.Background()
-	urlGenerated, _ := url.Parse("http://google.com")
+	urlGenerated, _ := url.Parse("http://youtube.com")
 	document, err := helpers.GetHtmlNode(ctx, urlGenerated)
 	s.NoError(err)
 
@@ -45,5 +45,5 @@ func (s *scraperTestSuite) TestScrape_ThenSuccess() {
 	s.NoError(err)
 
 	// Assert
-	s.Equal(250, len(gatheredUrls))
+	s.Equal(372, len(gatheredUrls))
 }

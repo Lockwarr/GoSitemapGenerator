@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/Lockwarr/GoSitemapGenerator/sitemap-generator-cli/parser"
@@ -11,7 +12,10 @@ import (
 func TestUnmarshalXML(t *testing.T) {
 	// Arrange
 	var sitemap parser.Sitemap
-	expectedSitemapUrls := []parser.SitemapURL{{Loc: "http://www.example.com/", LastMod: "2005-01-01", ChangeFreq: "monthly", Priority: "0.8"}}
+	expectedSitemapUrls := []parser.SitemapURL{
+		{Loc: "http://www.example.com/", LastMod: "2005-01-01", ChangeFreq: "monthly", Priority: "0.8"},
+		{Loc: "http://www.example2.com/", ChangeFreq: "monthly2", Priority: "0.8.2"},
+	}
 	filePath := "./testdata/sitemap.xml"
 
 	// Act
@@ -76,4 +80,26 @@ func TestMarshalXML_WhenNonExistingFile_ThenFail(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, "open : no such file or directory", err.Error())
+}
+
+func TestUrlsToSitemap_WhenCorrectUrlsPassed_ThenSuccess(t *testing.T) {
+	// Arrange
+	urlset := url.URL{Scheme: "http", Host: "www.mainsite.com"}
+	urlString1 := "http://www.example.com/"
+	urlString2 := "http://www.example2.com/"
+	urlParsed1, err := url.ParseRequestURI(urlString1)
+	assert.NoError(t, err)
+	urlParsed2, err := url.ParseRequestURI(urlString2)
+	assert.NoError(t, err)
+	urls := []*url.URL{urlParsed1, urlParsed2}
+	expectedSitemapUrls := []parser.SitemapURL{
+		{Loc: "http://www.example.com/"},
+		{Loc: "http://www.example2.com/"},
+	}
+
+	// Act
+	sitemapUrls := parser.UrlsToSitemap(&urlset, urls)
+
+	// Assert
+	assert.Equal(t, expectedSitemapUrls, sitemapUrls.Urls)
 }
